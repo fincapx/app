@@ -1,0 +1,44 @@
+# Rust
+target/
+**/*.rs.bk
+*.pdb
+
+# Node
+node_modules/
+dist/
+build/
+.svelte-kit/
+.vite/
+*.tsbuildinfo
+
+# Tauri
+src-tauri/target/
+src-tauri/gen/
+
+# Bases de datos locales y respaldos
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.bak
+
+# Entorno y secretos
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+.zed/
