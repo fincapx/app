@@ -8,7 +8,7 @@ impl CurrencyCode {
         // Text is seen like list of bytes. "COP" --> [67, 79, 80]
         let bytes = code.as_bytes();
 
-        // exactly thee bytes?
+        // exactly thee bytes? -> three.
         if bytes.len() != 3 {
             return Err(MoneyError::InvalidCurrencyCode(code.to_string()));
         }
@@ -21,22 +21,85 @@ impl CurrencyCode {
         }
 
         // Uppercase all three, wrap in Ok
-        Ok(CurrencyCode([
+        Ok(Self([
             bytes[0].to_ascii_uppercase(),
             bytes[1].to_ascii_uppercase(),
             bytes[2].to_ascii_uppercase(),
         ]))
     }
 
+    /// Returns the code as a string slice.
+    ///
+    /// Never panics in practice: 'new' is the only constructor and it
+    /// only accepts ASCII, which is always valid UTF-8.
     #[must_use]
     pub fn as_str(&self) -> &str {
         std::str::from_utf8(&self.0).unwrap()
     }
 }
 
+/// A monetary amount in a single currency, stored in minor units.
+///
+/// The scale (how many decimals the currency has) lives in the currency
+/// table, not here: all arithmetic happens in minor units.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Money {
+    amount: i64,
+    currency: CurrencyCode,
+}
+
+impl Money {
+    #[must_use]
+    pub fn new(amount: i64, currency: CurrencyCode) -> Self {
+        Self { amount, currency }
+    }
+
+    #[must_use]
+    pub fn zero(currency: CurrencyCode) -> Self {
+        Self::new(0, currency)
+    }
+
+    #[must_use]
+    pub fn amount(&self) -> i64 {
+        self.amount
+    }
+
+    #[must_use]
+    pub fn currency(&self) -> CurrencyCode {
+        self.currency
+    }
+
+    #[must_use]
+    pub fn is_zero(&self) -> bool {
+        self.amount == 0
+    }
+
+    /// Adds two amounts of the same currency
+    pub fn add(&self, other: &Self) -> Result<Self, MoneyError> {
+        if self.currency != other.currency {
+            return Err(MoneyError::CurrencyMismatch {
+                left: self.currency,
+                right: other.currency,
+            });
+        }
+
+        let sum = self
+            .amount
+            .checked_add(other.amount)
+            .ok_or(MoneyError::Overflow)?;
+
+        Ok(Self::new(sum, self.currency))
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MoneyError {
     InvalidCurrencyCode(String),
+    CurrencyMismatch {
+        left: CurrencyCode,
+        right: CurrencyCode,
+    },
+    Overflow,
 }
 
 #[cfg(test)]
@@ -74,5 +137,41 @@ mod tests {
             CurrencyCode::new("COP").unwrap(),
             CurrencyCode::new("cop").unwrap()
         );
+    }
+
+    fn cop() -> CurrencyCode {
+        CurrencyCode::new("COP").unwrap()
+    }
+
+    fn usd() -> CurrencyCode {
+        CurrencyCode::new("USD").unwrap()
+    }
+
+    #[test]
+    fn adds_same_currency() {
+        let a = Money::new(1500, cop());
+        let b = Money::new(2500, cop());
+        assert_eq!(a.add(&b).unwrap().amount(), 4000);
+    }
+
+    #[test]
+    fn rejects_different_currencies() {
+        let a = Money::new(1500, cop());
+        let b = Money::new(1500, usd());
+        assert!(a.add(&b).is_err());
+    }
+
+    #[test]
+    fn zero_is_neutral() {
+        let a = Money::new(1500, cop());
+        let z = Money::zero(cop());
+        assert_eq!(a.add(&z).unwrap(), a);
+    }
+
+    #[test]
+    fn detects_overflow_on_add() {
+        let a = Money::new(i64::MAX, cop());
+        let b = Money::new(1, cop());
+        assert_eq!(a.add(&b), Err(MoneyError::Overflow));
     }
 }
