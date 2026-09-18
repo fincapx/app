@@ -8,3 +8,8 @@ edition    = "2024"
 license    = "AGPL-3.0-or-later"
 authors    = ["justlugoo"]
 repository = "https://github.com/fincapx/app"
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -1}
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
