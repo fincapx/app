@@ -1,4 +1,6 @@
-/// ISO 4217 currency code: three ASCII letters, stored uppercase.
+use std::fmt;
+
+// ISO 4217 currency code: three ASCII letters, stored uppercase.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct CurrencyCode([u8; 3]);
 
@@ -102,6 +104,27 @@ pub enum MoneyError {
     Overflow,
 }
 
+impl fmt::Display for MoneyError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::InvalidCurrencyCode(code) => {
+                write!(f, "invalidad currency code: {code:?}")
+            }
+            Self::CurrencyMismatch { left, right } => {
+                write!(
+                    f,
+                    "currency mismatch: {} and {}",
+                    left.as_str(),
+                    right.as_str()
+                )
+            }
+            Self::Overflow => write!(f, "amount out of range"),
+        }
+    }
+}
+
+impl std::error::Error for MoneyError {}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -173,5 +196,20 @@ mod tests {
         let a = Money::new(i64::MAX, cop());
         let b = Money::new(1, cop());
         assert_eq!(a.add(&b), Err(MoneyError::Overflow));
+    }
+
+    #[test]
+    fn detects_underflow_on_add() {
+        let a = Money::new(i64::MIN, cop());
+        let b = Money::new(-1, cop());
+        assert_eq!(a.add(&b), Err(MoneyError::Overflow));
+    }
+
+    #[test]
+    fn error_reads_as_a_sentence() {
+        let a = Money::new(1, cop());
+        let b = Money::new(1, usd());
+        let err = a.add(&b).unwrap_err();
+        assert_eq!(err.to_string(), "currency mismatch: COP and USD");
     }
 }
