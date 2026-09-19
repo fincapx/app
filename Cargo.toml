@@ -3,11 +3,13 @@ resolver = "3"
 members = ["crates/core"]
 
 [workspace.package]
-version    = "0.1.0"
-edition    = "2024"
-license    = "AGPL-3.0-or-later"
-authors    = ["justlugoo"]
-repository = "https://github.com/fincapx/app"
+version      = "0.1.0"
+edition      = "2024"
+rust-version = "1.85"
+license      = "AGPL-3.0-or-later"
+authors      = ["justlugoo"]
+repository   = "https://github.com/fincapx/app"
+description  = "Gestor de finanzas personales local-first con partida doble"
 
 [workspace.lints.clippy]
 pedantic = { level = "warn", priority = -1}
