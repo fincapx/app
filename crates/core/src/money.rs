@@ -77,7 +77,7 @@ impl Money {
     }
 
     /// Adds two amounts of the same currency
-    pub fn add(&self, other: &Self) -> Result<Self, MoneyError> {
+    pub fn try_add(self, other: Self) -> Result<Self, MoneyError> {
         if self.currency != other.currency {
             return Err(MoneyError::CurrencyMismatch {
                 left: self.currency,
@@ -174,42 +174,42 @@ mod tests {
     fn adds_same_currency() {
         let a = Money::new(1500, cop());
         let b = Money::new(2500, cop());
-        assert_eq!(a.add(&b).unwrap().amount(), 4000);
+        assert_eq!(a.try_add(b).unwrap().amount(), 4000);
     }
 
     #[test]
     fn rejects_different_currencies() {
         let a = Money::new(1500, cop());
         let b = Money::new(1500, usd());
-        assert!(a.add(&b).is_err());
+        assert!(a.try_add(b).is_err());
     }
 
     #[test]
     fn zero_is_neutral() {
         let a = Money::new(1500, cop());
         let z = Money::zero(cop());
-        assert_eq!(a.add(&z).unwrap(), a);
+        assert_eq!(a.try_add(z).unwrap(), a);
     }
 
     #[test]
     fn detects_overflow_on_add() {
         let a = Money::new(i64::MAX, cop());
         let b = Money::new(1, cop());
-        assert_eq!(a.add(&b), Err(MoneyError::Overflow));
+        assert_eq!(a.try_add(b), Err(MoneyError::Overflow));
     }
 
     #[test]
     fn detects_underflow_on_add() {
         let a = Money::new(i64::MIN, cop());
         let b = Money::new(-1, cop());
-        assert_eq!(a.add(&b), Err(MoneyError::Overflow));
+        assert_eq!(a.try_add(b), Err(MoneyError::Overflow));
     }
 
     #[test]
     fn error_reads_as_a_sentence() {
         let a = Money::new(1, cop());
         let b = Money::new(1, usd());
-        let err = a.add(&b).unwrap_err();
+        let err = a.try_add(b).unwrap_err();
         assert_eq!(err.to_string(), "currency mismatch: COP and USD");
     }
 }
