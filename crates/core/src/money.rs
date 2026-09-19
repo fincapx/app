@@ -92,6 +92,22 @@ impl Money {
 
         Ok(Self::new(sum, self.currency))
     }
+
+    pub fn try_sub(self, other: Self) -> Result<Self, MoneyError> {
+        if self.currency != other.currency {
+            return Err(MoneyError::CurrencyMismatch {
+                left: self.currency,
+                right: other.currency,
+            });
+        }
+
+        let rest = self
+            .amount
+            .checked_sub(other.amount)
+            .ok_or(MoneyError::Overflow)?;
+
+        Ok(Self::new(rest, self.currency))
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -178,10 +194,24 @@ mod tests {
     }
 
     #[test]
+    fn subtracts_same_currency() {
+        let a = Money::new(2500, cop());
+        let b = Money::new(1500, cop());
+        assert_eq!(a.try_sub(b).unwrap().amount(), 1000);
+    }
+
+    #[test]
     fn rejects_different_currencies() {
         let a = Money::new(1500, cop());
         let b = Money::new(1500, usd());
         assert!(a.try_add(b).is_err());
+    }
+
+    #[test]
+    fn subtraction_rejects_different_currencies() {
+        let a = Money::new(1500, cop());
+        let b = Money::new(1500, usd());
+        assert!(a.try_sub(b).is_err());
     }
 
     #[test]
