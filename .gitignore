@@ -42,3 +42,9 @@ desktop.ini
 *.swp
 *.swo
 .zed/
+
+# Diccionario personal, no va al repo
+DICCIONARIO.md
+
+# Instrucciones locales para Claude Code
+CLAUDE.md
