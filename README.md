@@ -5,15 +5,10 @@
 **Un gestor de finanzas personales local-first, riguroso por dentro y sencillo por fuera.**
 
 [![Licencia: AGPL v3](https://img.shields.io/badge/licencia-AGPL--3.0-blue.svg)](LICENSE)
-[![Estado](https://img.shields.io/badge/estado-en%20dise%C3%B1o-orange.svg)](docs/design.md)
 
 </div>
 
 ---
-
-> **Estado del proyecto: en diseño.** Todavía no hay código. El
-> [documento de diseño](docs/design.md) define el modelo de datos y las decisiones
-> fundamentales antes de escribir la primera línea.
 
 ## La idea
 
@@ -36,29 +31,24 @@ guarda un asiento contable que cuadra al céntimo y se puede auditar diez años 
 - **Universal por defecto.** Ninguna decisión asume un país, una moneda o un idioma.
 - **La complejidad se esconde, no se elimina.**
 
-## Estado y hoja de ruta
+## Alcance
 
-| Fase | Contenido | Estado |
-|---|---|---|
-| 0 | Documento de diseño y modelo de datos | En curso |
-| 1 | Núcleo contable en Rust + `verify` | Pendiente |
-| 2 | Interfaz de escritorio (Tauri) | Pendiente |
-| 3 | Multi-moneda, presupuestos, informes | Pendiente |
-| 4 | Importar/exportar, traducciones | Pendiente |
+Quedan fuera de la primera versión, y a propósito: sincronización, IA, inversiones y
+conciliación bancaria. Son módulos que se añaden encima del núcleo sin migrar datos.
 
-Fuera de la primera versión, y a propósito: sincronización, IA, inversiones, conciliación
-bancaria. Son módulos que se añaden encima del núcleo sin migrar datos.
+Tampoco es un sistema de contabilidad para empresas, ni un cliente bancario: no se conecta
+a bancos ni descarga movimientos.
 
-## Plataformas previstas
+## Plataformas
 
 Linux, macOS y Windows, desde una sola base de código (Tauri 2).
 
 ## Contribuir
 
-El proyecto está en fase de diseño: ahora mismo la contribución más útil es **discutir el
-[documento de diseño](docs/design.md)**. Si ves un error en el modelo contable, en la
-representación del dinero o en el esquema, abre un issue — corregirlo hoy cuesta una
-conversación; corregirlo con usuarios cuesta una migración.
+La contribución más útil es **discutir el [documento de diseño](docs/design.md)**. Si ves
+un error en el modelo contable, en la representación del dinero o en el esquema, abre un
+issue — corregirlo hoy cuesta una conversación; corregirlo con usuarios cuesta una
+migración.
 
 ## Licencia
 
