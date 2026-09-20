@@ -108,6 +108,11 @@ impl Money {
 
         Ok(Self::new(rest, self.currency))
     }
+
+    pub fn try_neg(self) -> Result<Self, MoneyError> {
+        let negate = self.amount.checked_neg().ok_or(MoneyError::Overflow)?;
+        Ok(Self::new(negate, self.currency))
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -241,5 +246,17 @@ mod tests {
         let b = Money::new(1, usd());
         let err = a.try_add(b).unwrap_err();
         assert_eq!(err.to_string(), "currency mismatch: COP and USD");
+    }
+
+    #[test]
+    fn negates_amount() {
+        let a = Money::new(1500, cop());
+        assert_eq!(a.try_neg().unwrap().amount(), -1500);
+    }
+
+    #[test]
+    fn detects_overflow_on_neg() {
+        let a = Money::new(i64::MIN, cop());
+        assert_eq!(a.try_neg(), Err(MoneyError::Overflow));
     }
 }
