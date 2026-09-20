@@ -10,7 +10,7 @@ impl CurrencyCode {
         // Text is seen like list of bytes. "COP" --> [67, 79, 80]
         let bytes = code.as_bytes();
 
-        // exactly thee bytes? -> three.
+        // exactly three bytes?
         if bytes.len() != 3 {
             return Err(MoneyError::InvalidCurrencyCode(code.to_string()));
         }
@@ -124,7 +124,7 @@ impl fmt::Display for MoneyError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::InvalidCurrencyCode(code) => {
-                write!(f, "invalidad currency code: {code:?}")
+                write!(f, "invalid currency code: {code:?}")
             }
             Self::CurrencyMismatch { left, right } => {
                 write!(
