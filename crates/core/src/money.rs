@@ -118,6 +118,18 @@ impl Money {
         let negate = self.amount.checked_neg().ok_or(MoneyError::Overflow)?;
         Ok(Self::new(negate, self.currency))
     }
+
+    /// Multiplica un importe por un número entero: cantidades y repeticiones.
+    ///
+    /// El factor es entero a propósito: así nunca hay que redondear. Los
+    /// factores decimales (tasas, porcentajes) se tratan aparte.
+    pub fn try_mul_int(self, factor: i64) -> Result<Self, MoneyError> {
+        let mul = self
+            .amount
+            .checked_mul(factor)
+            .ok_or(MoneyError::Overflow)?;
+        Ok(Self::new(mul, self.currency))
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -280,6 +292,25 @@ mod tests {
         fn detects_overflow_on_neg() {
             let a = Money::new(i64::MIN, cop());
             assert_eq!(a.try_neg(), Err(MoneyError::Overflow));
+        }
+
+        // --- multiplicación ---
+        #[test]
+        fn multiplies_by_integer() {
+            let a = Money::new(4500, cop());
+            assert_eq!(a.try_mul_int(3).unwrap().amount(), 13500);
+        }
+
+        #[test]
+        fn multiplying_by_zero_gives_zero() {
+            let a = Money::new(4500, cop());
+            assert_eq!(a.try_mul_int(0).unwrap().amount(), 0);
+        }
+
+        #[test]
+        fn detects_overflow_on_mul() {
+            let a = Money::new(i64::MAX, cop());
+            assert_eq!(a.try_mul_int(2), Err(MoneyError::Overflow));
         }
     }
 
