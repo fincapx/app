@@ -1,7 +1,7 @@
 # FinCapX — Documento de diseño
 
 > Estado: **borrador**. Escrito antes de la primera línea de código, a propósito.
-> Última revisión: 2026-09-16
+> Última revisión: 2026-09-23
 
 Este documento existe para que, dentro de seis meses, exista una respuesta escrita a la
 pregunta "¿por qué está hecho así?". Todo lo que está aquí es discutible **hasta** que se
@@ -46,7 +46,12 @@ Nadie ocupa la esquina "riguroso **y** agradable". Ese es el objetivo.
 3. **La complejidad se esconde, no se elimina.** El usuario nunca escribe un asiento
    contable, pero el asiento existe y es auditable.
 4. **Universal por defecto.** Ninguna decisión asume Colombia, ni el peso, ni el español.
-5. **Aburrido por dentro.** SQLite, Rust, sin dependencias exóticas en el núcleo.
+5. **Aburrido por dentro.** SQLite, Rust, y dependencias que se puedan justificar una
+   por una. No se trata de tener pocas, sino de que cada una sea estándar de facto en su
+   ecosistema, esté mantenida, arrastre poco detrás de sí y no tenga avisos de seguridad
+   abiertos. Una dependencia "exótica" no es la que hace algo raro: es la que nadie más
+   usa, o la que no puedes auditar. Antes de añadir una al núcleo: `cargo tree` para ver
+   qué trae consigo, y `cargo audit` para contrastarla con el registro RustSec.
 
 ---
 
