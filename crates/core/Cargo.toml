@@ -8,6 +8,7 @@ repository.workspace   = true
 description.workspace  = true
 
 [dependencies]
+uuid = { version = "1.26.1", features = ["v7"] }
 
 [lints]
 workspace = true
