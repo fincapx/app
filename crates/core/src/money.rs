@@ -167,7 +167,7 @@ impl std::error::Error for MoneyError {}
 mod tests {
     use super::*;
 
-    // Atajos para que cada test se lea como lo que comprueba, no como preparación.
+    // Atajos para que los tests se lean como lo que comprueban.
     fn cop() -> CurrencyCode {
         CurrencyCode::new("COP").unwrap()
     }
@@ -176,8 +176,7 @@ mod tests {
         CurrencyCode::new("USD").unwrap()
     }
 
-    /// Lectura y normalización del código de tres letras. Nada de aquí
-    /// toca importes.
+    // Validación del código de tres letras.
     mod currency {
         use super::*;
 
@@ -206,8 +205,7 @@ mod tests {
             assert!(CurrencyCode::new("CÖP").is_err());
         }
 
-        /// La caja se normaliza, así que dos formas de escribir el mismo
-        /// código son el mismo valor.
+        // La caja se normaliza: dos formas de escribirlo son el mismo valor.
         #[test]
         fn equal_codes_compare_equal() {
             assert_eq!(
@@ -217,8 +215,7 @@ mod tests {
         }
     }
 
-    /// Aritmética comprobada. Cada operación da un resultado exacto o falla
-    /// en voz alta; ninguna puede dar la vuelta al contador ni mezclar monedas.
+    // Resultado exacto o fallo en voz alta, nunca dar la vuelta al contador.
     mod arithmetic {
         use super::*;
 
@@ -245,8 +242,7 @@ mod tests {
             assert_eq!(a.try_add(z).unwrap(), a);
         }
 
-        /// Vigila el `checked_add` de `try_add`: un `+` normal daría la vuelta
-        /// en silencio al compilar en release y convertiría un saldo en su opuesto.
+        // Vigila el `checked_add`: un `+` normal daría la vuelta en silencio en release.
         #[test]
         fn detects_overflow_on_add() {
             let a = Money::new(i64::MAX, cop());
@@ -254,7 +250,7 @@ mod tests {
             assert_eq!(a.try_add(b), Err(MoneyError::Overflow));
         }
 
-        /// La misma vigilancia, en el extremo bajo del rango.
+        // La misma vigilancia, en el extremo bajo del rango.
         #[test]
         fn detects_underflow_on_add() {
             let a = Money::new(i64::MIN, cop());
@@ -286,8 +282,7 @@ mod tests {
             assert_eq!(a.try_neg().unwrap().amount(), -1500);
         }
 
-        /// El rango de i64 tiene un negativo más que positivos, así que negar
-        /// su suelo no da un resultado representable.
+        // i64 tiene un negativo de más: su suelo no tiene opuesto.
         #[test]
         fn detects_overflow_on_neg() {
             let a = Money::new(i64::MIN, cop());
@@ -314,8 +309,7 @@ mod tests {
         }
     }
 
-    /// Cómo llega un fallo a una persona. La redacción es para logs y para
-    /// quien programa; la interfaz traduce la variante, no este texto.
+    // Para logs y para quien programa; la interfaz traduce la variante, no esto.
     mod errors {
         use super::*;
 
