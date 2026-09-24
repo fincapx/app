@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use uuid::Uuid;
 
 use crate::money::{CurrencyCode, Money, MoneyError};
 
@@ -25,6 +26,51 @@ pub fn is_balanced(amounts: &[Money]) -> Result<bool, MoneyError> {
     Ok(totals.values().all(Money::is_zero))
 }
 
+/// Un apunte: el movimiento de un importe en una cuenta.
+///
+/// Es una linea de una transaccion. Por si solo no significa nada; cobra
+/// sentido dentro del conjunto que tiene que cuadrar
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Posting {
+    id: Uuid,
+    account_id: Uuid,
+    amount: Money,
+    memo: Option<String>,
+}
+
+impl Posting {
+    /// Crea un apunte nuevo con identidad propia.
+    #[must_use]
+    pub fn new(account_id: Uuid, amount: Money, memo: Option<String>) -> Self {
+        Self {
+            id: Uuid::now_v7(),
+            account_id,
+            amount,
+            memo,
+        }
+    }
+
+    #[must_use]
+    pub fn id(&self) -> Uuid {
+        self.id
+    }
+
+    #[must_use]
+    pub fn account_id(&self) -> Uuid {
+        self.account_id
+    }
+
+    #[must_use]
+    pub fn amount(&self) -> Money {
+        self.amount
+    }
+
+    #[must_use]
+    pub fn memo(&self) -> Option<&str> {
+        self.memo.as_deref()
+    }
+}
+
 #[cfg(test)]
 mod test {
 
@@ -38,7 +84,7 @@ mod test {
         CurrencyCode::new("USD").unwrap()
     }
 
-    /// Un almuerzo: sale de efectivo, entra en gastos.
+    // Un almuerzo: sale de efectivo, entra en gastos.
     #[test]
     fn simple_transaction_balances() {
         let postings = [Money::new(-50_000, cop()), Money::new(50_000, cop())];
@@ -51,8 +97,7 @@ mod test {
         assert!(!is_balanced(&postings).unwrap());
     }
 
-    /// Cambio de divisa con cuentas de intercambio: cuatro apuntes, dos
-    /// monedas, y cada una cuadra por su lado
+    // Cuatro apuntes, dos monedas, cada una cuadra por su lado.
     #[test]
     fn currency_exchange_balances_per_currency() {
         let postings = [
@@ -64,8 +109,7 @@ mod test {
         assert!(is_balanced(&postings).unwrap());
     }
 
-    /// La trampa que justifica el mapa: el total general da cero, pero son
-    /// monedas distintas y no se pueden sumar entre ellas.
+    // El total general da cero, pero son monedas distintas.
     #[test]
     fn does_not_mix_currencies() {
         let postings = [Money::new(-10_000, usd()), Money::new(10_000, cop())];
